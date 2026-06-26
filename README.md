@@ -1,68 +1,47 @@
-# ✦ Driftspace
+# 🌌 Driftspace
+> *From your first question to the edge of spacetime.*
 
-An immersive, AI-powered space learning platform built with Next.js 14. Explore 20 topics across 5 pillars of astrophysics — from the Solar System to Cosmology — through structured AI briefings, streaming chat, animated diagrams, and a real-observatory globe.
+An AI-powered space learning platform for curious minds — 
+from complete beginners to space nerds. Built to make 
+astrophysics beautiful, accessible, and genuinely fascinating.
 
-## Stack
+---
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **AI:** [Cohere](https://cohere.com) — `command-r-plus` model
-- **3D Visuals:** Three.js (CelestialSphereShader)
-- **Globe:** MapLibre GL via mapcn-map-arc
-- **State:** Zustand
+## ✨ Features
+- **AI Topic Briefings** — Layered scientific explanations powered by Cohere
+- **Learning Roadmap** — Constellation-style path from Solar System to Cosmology
+- **Cosmic Catalog** — 60+ stars, moons, planets, nebulae and spacecraft
+- **Space News** — Live news, rocket launch countdowns, and NASA APOD
+- **Space Vocabulary** — 80+ terms with analogies and inline tooltips
+- **Explore Mode** — Topics floating like nebulae on a force-simulation canvas
+- **Beginner Path** — Personalized starting journey based on your curiosity
 
-## Getting Started
+---
 
-1. **Install dependencies**
+## 🛠️ Tech Stack
+Next.js 14 · TypeScript · Tailwind CSS · Three.js · Framer Motion · Cohere API · Vercel
 
-   ```bash
-   npm install
-   ```
+---
 
-2. **Add your Cohere API key**
-
-   Create or edit `.env.local`:
-
-   ```env
-   COHERE_API_KEY=your_cohere_api_key_here
-   ```
-
-   Get a key at [dashboard.cohere.com](https://dashboard.cohere.com).
-
-3. **Start the dev server**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000).
-
-## Pages
-
-| Route | Description |
-|---|---|
-| `/` | Hero with typewriter search + constellation roadmap |
-| `/topic/[slug]` | AI deep-dive: briefing, diagram, observatory globe, chat |
-| `/begin` | Spark-based beginner onboarding → personalized 5-topic path |
-| `/explore` | Physics force-simulation canvas of all 20 topics |
-
-## AI Routes
-
-| Endpoint | Purpose | Cohere call |
-|---|---|---|
-| `POST /api/ai/briefing` | Structured JSON briefing for a topic | `co.chat()` |
-| `POST /api/ai/chat` | Streaming conversation panel | `co.chatStream()` |
-| `POST /api/ai/search` | Natural language → topic slug | `co.chat()` |
-| `POST /api/ai/teaser` | 3-sentence sidebar teaser | `co.chat()` |
-| `POST /api/ai/beginner-path` | Spark → 5-topic learning path | `co.chat()` |
-
-## Topics
-
-20 topics across 5 pillars: **Solar System**, **Stars**, **Galaxies**, **Black Holes**, **Cosmology**.
-
-## Build
+## 🚀 Getting Started
 
 ```bash
-npm run build
+git clone https://github.com/YOUR_USERNAME/driftspace.git
+cd driftspace
+npm install
+cp .env.example .env.local  # Add your API keys
+npm run dev
 ```
+
+### Environment Variables
+```env
+COHERE_API_KEY=your_cohere_key
+NASA_API_KEY=your_nasa_key
+```
+
+---
+
+## 🔭 Built By
+**Aditi** — CS student building things that make people go *"whoa"*
+
+*"The cosmos is within us. We are made of star-stuff."* — Carl Sagan
