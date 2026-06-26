@@ -1,18 +1,23 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getTopicBySlug, PILLAR_COLORS, PILLAR_LABELS } from "@/lib/topics";
 import type { Topic } from "@/lib/topics";
 import { useDriftspaceStore } from "@/lib/store";
 import type { TopicBriefing } from "@/lib/store";
-import NebulaSpinner from "@/components/NebulaSpinner";
 import TopicChat from "@/components/TopicChat";
+import SkeletonBriefing from "@/components/ui/SkeletonBriefing";
 import { linkGlossaryTerms } from "@/lib/linkGlossaryTerms";
 
 // Lazy load heavy components
-const HeroPlanet = dynamic(() => import("@/components/ui/HeroPlanet"), { ssr: false });
+const HeroPlanet = dynamic(() => import("@/components/ui/HeroPlanet"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, rgba(10,10,40,0.5) 0%, transparent 70%)" }} />
+  ),
+});
 const ObservatoryGlobe = dynamic(() => import("@/components/ObservatoryGlobe"), { ssr: false });
 
 // Diagrams
@@ -53,6 +58,7 @@ function DiagramSection({ topic }: { topic: Topic }) {
 }
 
 function RelatedTopicCard({ slug }: { slug: string }) {
+  const router = useRouter();
   const topic = getTopicBySlug(slug);
   if (!topic) return null;
   const color = PILLAR_COLORS[topic.pillar];
@@ -62,6 +68,7 @@ function RelatedTopicCard({ slug }: { slug: string }) {
       href={`/topic/${slug}`}
       className="topic-card block rounded-xl p-5 transition-all duration-400"
       style={{ background: "rgba(10,10,31,0.8)", border: "1px solid rgba(100,255,218,0.1)" }}
+      onMouseEnter={() => router.prefetch(`/topic/${slug}`)}
     >
       <div className="mb-3 text-2xl">{topic.icon}</div>
       <p className="text-xs mb-1 font-medium" style={{ color, fontFamily: "Inter" }}>
@@ -92,6 +99,7 @@ export default function TopicPage() {
   const [briefing, setBriefingLocal] = useState<TopicBriefing | null>(briefings[slug] ?? null);
   const [loading, setLoading] = useState(!briefings[slug]);
   const [error, setError] = useState<string | null>(null);
+  const [streamChars, setStreamChars] = useState(0);
 
   useEffect(() => {
     if (!topic) return;
@@ -101,16 +109,36 @@ export default function TopicPage() {
       return;
     }
     setLoading(true);
+    setStreamChars(0);
     fetch("/api/ai/briefing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug, topicName: topic.name, nerdLevel }),
     })
-      .then((r) => r.json())
+      .then(async (r) => {
+        const ct = r.headers.get("Content-Type") ?? "";
+        if (ct.includes("application/json")) {
+          return r.json();
+        }
+        // Streaming response — read chunks and accumulate
+        const reader = r.body!.getReader();
+        const decoder = new TextDecoder();
+        let text = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          text += decoder.decode(value, { stream: true });
+          setStreamChars(text.length);
+        }
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("Invalid stream response");
+        return JSON.parse(jsonMatch[0]);
+      })
       .then((data) => {
         setBriefing(slug, data);
         setBriefingLocal(data);
         setLoading(false);
+        setStreamChars(0);
       })
       .catch(() => {
         setError("The signal was lost in interstellar space. Try refreshing.");
@@ -211,9 +239,7 @@ export default function TopicPage() {
           </p>
 
           {loading && (
-            <div className="flex flex-col items-center gap-4 py-16">
-              <NebulaSpinner size={56} label="Consulting the cosmos…" />
-            </div>
+            <SkeletonBriefing streaming={streamChars > 0} streamChars={streamChars} />
           )}
 
           {error && (

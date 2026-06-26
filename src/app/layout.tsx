@@ -3,6 +3,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import StarfieldCanvas from "@/components/StarfieldCanvas";
 import GlossaryModal from "@/components/GlossaryModal";
+import PageLoader from "@/components/ui/PageLoader";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body style={{ background: "#050510", color: "#ffffff", fontFamily: "Inter, sans-serif" }}>
+        <PageLoader />
         <StarfieldCanvas />
         <Nav />
         <main style={{ position: "relative", zIndex: 1 }}>

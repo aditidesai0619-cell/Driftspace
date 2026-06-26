@@ -8,8 +8,19 @@ import type { Topic } from "@/lib/topics";
 import NebulaSpinner from "@/components/NebulaSpinner";
 import { useDriftspaceStore } from "@/lib/store";
 
-const HeroPlanet = dynamic(() => import("@/components/ui/HeroPlanet"), { ssr: false });
-const StarField = dynamic(() => import("@/components/ui/StarField"), { ssr: false });
+const HeroPlanet = dynamic(() => import("@/components/ui/HeroPlanet"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="absolute inset-0"
+      style={{ background: "radial-gradient(ellipse at center, rgba(26,68,128,0.15) 0%, transparent 60%)" }}
+    />
+  ),
+});
+const StarField = dynamic(() => import("@/components/ui/StarField"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const PLACEHOLDER_QUERIES = [
   "How do black holes form?",

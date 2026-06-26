@@ -8,11 +8,12 @@ export async function POST(req: NextRequest) {
   try {
     const { spark } = await req.json();
 
-    const topicSummaries = topics.map(t => `${t.slug} (${t.name}, ${t.pillar})`).join(", ");
+    const topicSummaries = topics.map((t) => `${t.slug} (${t.name}, ${t.pillar})`).join(", ");
 
     const response = await co.chat({
       model: "command-r-plus-08-2024",
-      preamble: "You are a personalized learning path designer for a space science platform. Return ONLY valid JSON — no markdown, no code blocks.",
+      preamble:
+        "You are a personalized learning path designer for a space science platform. Return ONLY valid JSON — no markdown, no code blocks.",
       message: `A complete beginner is starting their space science journey. Their initial spark of interest was: "${spark}".
 
 Create a personalized 5-topic learning path from the available topics below. Choose topics that:
@@ -34,6 +35,7 @@ Return ONLY this JSON:
 }
 
 No markdown, no code blocks, only valid JSON.`,
+      maxTokens: 300,
     });
 
     const text = response.text ?? "";

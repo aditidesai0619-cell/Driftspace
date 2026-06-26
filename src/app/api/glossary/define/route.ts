@@ -6,6 +6,9 @@ import path from "path";
 const co = new CohereClient({ token: process.env.COHERE_API_KEY });
 const CACHE_PATH = path.join(process.cwd(), "src", "lib", "glossary-cache.json");
 
+// In-memory layer — checked first, avoids disk reads on repeat lookups
+const memCache = new Map<string, unknown>();
+
 function readCache(): Record<string, unknown> {
   try {
     return JSON.parse(fs.readFileSync(CACHE_PATH, "utf-8"));
@@ -30,9 +33,15 @@ export async function POST(req: NextRequest) {
     }
 
     const key = term.trim().toLowerCase();
-    const cache = readCache();
-    if (cache[key]) {
-      return NextResponse.json(cache[key]);
+
+    if (memCache.has(key)) {
+      return NextResponse.json(memCache.get(key));
+    }
+
+    const fileCache = readCache();
+    if (fileCache[key]) {
+      memCache.set(key, fileCache[key]);
+      return NextResponse.json(fileCache[key]);
     }
 
     const response = await co.chat({
@@ -74,8 +83,9 @@ Return only valid JSON, no markdown, no preamble.`,
       aiGenerated: true,
     };
 
-    cache[key] = result;
-    writeCache(cache);
+    memCache.set(key, result);
+    fileCache[key] = result;
+    writeCache(fileCache);
 
     return NextResponse.json(result);
   } catch (err) {

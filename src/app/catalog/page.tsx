@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   catalogObjects,
   TYPE_COLORS,
@@ -24,6 +25,7 @@ const ALL_TYPES: CatalogObjectType[] = [
 type SortOption = "name" | "distance" | "year";
 
 function CatalogCard({ obj }: { obj: (typeof catalogObjects)[number] }) {
+  const router = useRouter();
   const typeColor = TYPE_COLORS[obj.type];
   return (
     <Link
@@ -36,6 +38,7 @@ function CatalogCard({ obj }: { obj: (typeof catalogObjects)[number] }) {
         transition: "border-color 250ms ease, transform 250ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 250ms ease",
       }}
       onMouseEnter={(e) => {
+        router.prefetch(`/object/${obj.id}`);
         e.currentTarget.style.borderColor = `${typeColor}50`;
         e.currentTarget.style.transform = "translateY(-3px)";
         e.currentTarget.style.boxShadow = `0 4px 16px ${typeColor}18, 0 12px 40px rgba(5,5,16,0.5)`;

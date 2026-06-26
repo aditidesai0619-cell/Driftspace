@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getTopicBySlug, PILLAR_COLORS } from "@/lib/topics";
 import NebulaSpinner from "@/components/NebulaSpinner";
 import { linkGlossaryTerms } from "@/lib/linkGlossaryTerms";
@@ -19,6 +20,7 @@ interface PathStep {
 }
 
 export default function BeginPage() {
+  const router = useRouter();
   const [step, setStep] = useState<"spark" | "loading" | "path">("spark");
   const [path, setPath] = useState<PathStep[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -164,6 +166,7 @@ export default function BeginPage() {
                       key={step.slug}
                       className="flex gap-6 items-start"
                       style={{ animation: `fadeInUp ${200 + i * 120}ms cubic-bezier(0.34,1.56,0.64,1) forwards`, opacity: 0 }}
+                      onMouseEnter={() => router.prefetch(`/topic/${step.slug}`)}
                     >
                       {/* Step indicator */}
                       <div

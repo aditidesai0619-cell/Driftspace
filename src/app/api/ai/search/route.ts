@@ -6,6 +6,9 @@ import { glossaryTerms } from "@/lib/glossary";
 
 const co = new CohereClient({ token: process.env.COHERE_API_KEY });
 
+const cache = new Map<string, { data: unknown; timestamp: number }>();
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+
 export async function POST(req: NextRequest) {
   try {
     const { query } = await req.json();
@@ -13,17 +16,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ found: false, query: "", description: "Empty search." });
     }
 
-    const topicList = topics
-      .map((t) => `${t.slug}: ${t.name}`)
-      .join(", ");
+    const cacheKey = JSON.stringify({ query: query.trim().toLowerCase() });
+    const cached = cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return NextResponse.json(cached.data);
+    }
 
+    const topicList = topics.map((t) => `${t.slug}: ${t.name}`).join(", ");
     const catalogList = catalogObjects
       .map((o) => `${o.id}: ${o.name} (${o.type}${o.parentBody ? ", " + o.parentBody : ""})`)
       .join(", ");
-
-    const glossaryList = glossaryTerms
-      .map((g) => `${g.id}: ${g.term}`)
-      .join(", ");
+    const glossaryList = glossaryTerms.map((g) => `${g.id}: ${g.term}`).join(", ");
 
     const response = await co.chat({
       model: "command-r-plus-08-2024",
@@ -55,6 +58,7 @@ Rules:
 CRITICAL: Never substitute a parent body for a specific object. If they search "Ganymede", return Ganymede (catalog id: ganymede), NOT Jupiter. If they search "Europa moon", return Europa (catalog id: europa). If they search a general concept like "event horizon" or "dark matter" prefer the glossary term over a learning topic when both could apply.
 
 Return ONLY valid JSON, no markdown.`,
+      maxTokens: 300,
     });
 
     const text = response.text ?? "";
@@ -64,13 +68,16 @@ Return ONLY valid JSON, no markdown.`,
         found: false,
         query,
         type: "other",
-        description: "We couldn't identify that object precisely. Try searching for a specific planet, star, or phenomenon.",
+        description:
+          "We couldn't identify that object precisely. Try searching for a specific planet, star, or phenomenon.",
         relatedSlugs: ["big-bang", "milky-way", "stellar-evolution"],
         relatedCatalogIds: ["james-webb", "hubble", "sirius"],
       });
     }
 
-    return NextResponse.json(JSON.parse(jsonMatch[0]));
+    const result = JSON.parse(jsonMatch[0]);
+    cache.set(cacheKey, { data: result, timestamp: Date.now() });
+    return NextResponse.json(result);
   } catch (err) {
     console.error("Search error:", err);
     return NextResponse.json(
