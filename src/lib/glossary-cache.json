@@ -1,0 +1,20 @@
+{
+  "orbit": {
+    "id": "orbit",
+    "term": "orbit",
+    "category": "Fundamentals",
+    "oneLiner": "The curved path of an object around a more massive body.",
+    "analogy": "Imagine a child swinging around a lamppost; the lamppost's gravity keeps the child in a circular motion.",
+    "deepDive": "In space, orbits are the result of a delicate balance between an object's inertia, which makes it want to move in a straight line, and the gravitational pull of a nearby massive body, like a planet or star. This force of gravity acts as a centripetal force, continuously pulling the orbiting object towards the massive body, causing it to follow a curved path. The speed of the object is crucial; if it's too slow, it falls towards the massive body, and if it's too fast, it can escape the gravitational pull.\n\nMathematically, an orbit is an elliptical path, with the more massive body at one of the foci. The shape of the orbit depends on the initial velocity and angle of approach of the orbiting object. Circular orbits are a special case where the object's speed and distance from the massive body remain constant.\n\nThe concept of orbits is fundamental in astronomy, explaining the motion of planets, moons, and artificial satellites. It's also crucial for space missions, where precise calculations are needed to navigate spacecraft into desired orbits around celestial bodies.",
+    "relatedTerms": [
+      "gravitational-pull",
+      "centripetal-force",
+      "elliptical-orbit",
+      "artificial-satellite"
+    ],
+    "appearsIn": [],
+    "difficulty": "beginner",
+    "exampleUsage": "The International Space Station maintains a low Earth orbit, circling our planet multiple times a day.",
+    "aiGenerated": true
+  }
+}
